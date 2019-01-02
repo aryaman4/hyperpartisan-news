@@ -29,5 +29,19 @@ def xml_panda(file):
         data['text'].append(temp)
     return pd.DataFrame(data=data)
 
+def xml_panda_gt(file):
+    tree = ET.parse(file)
+    data = dict()
+    attribs = ['hyperpartisan', 'id', 'labeled-by','url']
+    root = tree.getroot()
+    for i, article in enumerate(root.findall('article')):
+        for key, value in article.attrib.items():
+            if key not in data.keys():
+                data[key] = list()
+                data[key].append(value)
+            else:
+                data[key].append(value)
+    return pd.DataFrame(data=data)
+
 
 
