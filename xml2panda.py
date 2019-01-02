@@ -44,4 +44,3 @@ def xml_panda_gt(file):
     return pd.DataFrame(data=data)
 
 
-
