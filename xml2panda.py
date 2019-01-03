@@ -1,5 +1,7 @@
 import pandas as pd
 import xml.etree.ElementTree as ET
+from preprocess import *
+
 
 def xml_panda(file):
     tree = ET.parse(file)
@@ -26,8 +28,16 @@ def xml_panda(file):
             if para.text is None:
                 continue
             temp += para.text
-        data['text'].append(temp)
+        if temp == '':
+            data['text'].append(temp)
+        else:
+            temp = remove_special(temp)
+            temp = remove_stopwords(temp)
+            temp = lemma(temp)
+            temp = expand_contractions(temp)
+            data['text'].append(temp)
     return pd.DataFrame(data=data)
+
 
 def xml_panda_gt(file):
     tree = ET.parse(file)
@@ -42,5 +52,4 @@ def xml_panda_gt(file):
             else:
                 data[key].append(value)
     return pd.DataFrame(data=data)
-
 
