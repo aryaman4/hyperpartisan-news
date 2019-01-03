@@ -33,8 +33,8 @@ def xml_panda(file):
         else:
             temp = remove_special(temp)
             temp = remove_stopwords(temp)
-            temp = lemma(temp)
             temp = expand_contractions(temp)
+            temp = lemma(temp)
             data['text'].append(temp)
     return pd.DataFrame(data=data)
 
