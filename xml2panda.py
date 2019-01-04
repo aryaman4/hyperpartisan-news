@@ -1,7 +1,7 @@
 import pandas as pd
 import xml.etree.ElementTree as ET
 from preprocess import *
-
+import time
 
 def xml_panda(file):
     tree = ET.parse(file)
@@ -31,9 +31,9 @@ def xml_panda(file):
         if temp == '':
             data['text'].append(temp)
         else:
+            temp = expand_contractions(temp)
             temp = remove_special(temp)
             temp = remove_stopwords(temp)
-            temp = expand_contractions(temp)
             temp = lemma(temp)
             data['text'].append(temp)
     return pd.DataFrame(data=data)
