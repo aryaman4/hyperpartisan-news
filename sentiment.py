@@ -1,15 +1,46 @@
-from xml2panda import *
 from afinn import Afinn
-import matplotlib.pyplot as plt
+from preprocess import *
 af = Afinn()
-data = xml_panda('articles-training-byarticle-20181122.xml')
-scores = [af.score(t) for t in data['title']]
-gt = xml_panda_gt('ground-truth-training-byarticle-20181122.xml')
-truths = [h for h in gt['hyperpartisan']]
-vals = [0 if h == 'false' else 1 for h in truths]
-pairs = [(scores[i], vals[i]) for i in range(len(scores))]
-print(pairs)
-plt.plot(scores, vals, 'ro')
-plt.ylabel('truths')
-plt.xlabel('sentiment scores')
-plt.show()
+s = "A tenant-driven class action #lawsuit brought against 2 Lower Manhattan buildings ravaged by #HurricaneSandy dismissed"
+import spacy
+nlp = spacy.load('en_core', parse=True, tag=True, entity=True)
+sen = remove_special(s)
+sentence = lemma(sen)
+sentence = remove_stopwords(sentence)
+sentence_nlp = nlp(sentence)
+
+dependency_pattern = '{left}<---{word}[{w_type}]--->{right}\n--------'
+orths = [token.orth_ for token in sentence_nlp]
+left = []
+right = []
+keywords = ['subway', 'hurricanesandy', 'mta']
+for token in sentence_nlp:
+    left.append([t.orth_ for t in token.lefts])
+    right.append([t.orth_ for t in token.rights])
+print(orths)
+print(left)
+print(right)
+score = 0
+for i, t in enumerate(orths):
+    if t in keywords:
+        for l in left[i]:
+            score += af.score(l)
+        for r in right[i]:
+            score += af.score(r)
+for i, l in enumerate(left):
+    for k in keywords:
+        if k in l:
+            score += af.score(orths[i])
+            for r in right[i]:
+                score += af.score(r)
+            for elem in l:
+                score += af.score(elem)
+for i, r in enumerate(right):
+    for k in keywords:
+        if k in r:
+            score += af.score(orths[i])
+            for l in left[i]:
+                score += af.score(l)
+            for elem in r:
+                score += af.score(elem)
+print(score)
